@@ -1,32 +1,30 @@
-# Python Runtime Agent Guidelines (L0)
+# Python Runtime Agent Guidelines (L1 Extension)
 
-## 1. Universal Architectural Invariants
-- **Domain Colocation over Technical Grab-Bags:** Organize code strictly by cohesive domain boundaries (`src/app/domain/<feature>/`). Never create generic `utils/`, `helpers/`, or `misc/` directories.
-- **Unidirectional Layering:** Dependencies flow in one direction:
-  `Transport (API routers) -> Domain Services -> Persistence (Repositories) / External Integrations`
-- **Boundary Validation:** Direct reads of `os.environ` in domain logic are strictly banned. Centralize and validate all environment variables inside `src/app/core/config.py` using Pydantic `BaseSettings`.
-- **Search-Before-Author:** Search existing modules before authoring helpers or math functions. Parameterize existing code; fork-and-duplicate is strictly prohibited.
+Inherits: Universal L0 Invariants (workflow/AGENTS.md).
+Do not repeat global workflow rules here.
 
-## 2. Directory Layout
-```
-src/app/
-├── api/
-│   └── v1/                      # Transport: FastAPI routers & endpoints
-├── domain/                      # Cohesive Domain Boundaries (Colocated)
-│   └── <feature>/
-│       ├── schemas.py           # Pydantic request/response validation schemas
-│       ├── service.py           # Pure business logic & transactions
-│       └── repository.py        # Data access layer
-└── core/                        # Infrastructure & Config
-    └── config.py                # Pydantic BaseSettings singleton
-tests/                           # Test suite (mirrors entry points)
-```
+## 1. Project Technology Stack
+- Runtime: Python 3.11+ managed by uv
+- Framework: FastAPI with Pydantic v2
+- Settings: Validated via src/app/core/config.py (Pydantic BaseSettings)
+- Testing & Linting: Ruff, Mypy (strict), Pytest
 
-## 3. The 6 Verification Gates
-Before claiming task completion or creating PRs, all gates must pass:
-1. **Typecheck:** `uv run mypy src` (0 errors)
-2. **Lint & Format:** `uv run ruff check .` and `uv run ruff format --check .` (0 warnings)
-3. **Tests:** `uv run pytest` (Full suite green)
-4. **Dead Code:** Clean imports and zero unused endpoints
-5. **Duplication Audit:** `npx --yes fallow@3.33.1 dupes --quiet --no-fragments`
-6. **Anti-Slop Scan:** `npx --yes --package @ast-grep/cli ast-grep scan`
+## 2. Physical File Placement Rules
+- Transport Endpoints: Place in src/app/api/v1/<feature>.py
+- Domain Boundaries: Place in src/app/domain/<feature>/ (schemas.py, service.py, repository.py)
+- Configuration: Singleton settings in src/app/core/config.py
+- Test Suites: Place in tests/test_<feature>.py mirroring public entry points
+
+## 3. Data Access & Boundary Invariants
+- Direct access to os.environ in domain logic is strictly banned. Import settings from app.core.config.
+- API endpoints parse and validate inputs via Pydantic schemas before calling domain services.
+- Domain services return typed DTOs/schemas, not raw database rows.
+
+## 4. The 6 Verification Gates
+Run these commands to prove task completion:
+1. Gate 1 (Typecheck): uv run mypy src
+2. Gate 2 (Lint & Format): uv run ruff check . && uv run ruff format --check .
+3. Gate 3 (Tests): uv run pytest
+4. Gate 4 (Dead Code): Clean imports and zero unused endpoints
+5. Gate 5 (Duplication): npx --yes fallow@3.33.1 dupes --quiet --no-fragments
+6. Gate 6 (Anti-Slop): npx --yes --package @ast-grep/cli ast-grep scan
