@@ -20,15 +20,17 @@ jobs:
           echo "Renaming template-python to $NEW_NAME (package: $NEW_NAME_UNDERSCORE)..."
           find . -type f \( -name "*.toml" -o -name "*.py" -o -name "*.md" -o -name "*.jsonc" -o -name "*.yml" \) \
             -not -path "*/.git/*" \
+            -not -path "*/.github/*" \
             -exec sed -i "s/template-python/$NEW_NAME/g" {} +
           find . -type f \( -name "*.toml" -o -name "*.py" \) \
             -not -path "*/.git/*" \
+            -not -path "*/.github/*" \
             -exec sed -i "s/template_python/$NEW_NAME_UNDERSCORE/g" {} +
 
-      - name: Remove init workflow and commit changes
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git rm .github/workflows/init.yml
-          git commit -m "chore: initialize repository from template-python"
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: initialize repository from template-python"
           git push
