@@ -14,7 +14,7 @@ from app.main import app  # noqa: E402
 
 
 @pytest.fixture
-async def client() -> AsyncGenerator[AsyncClient, None]:
+async def client() -> AsyncGenerator[AsyncClient]:
     """Yield an async test client configured with ASGI transport."""
     async with AsyncClient(
         transport=ASGITransport(app=app),

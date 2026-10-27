@@ -1,26 +1,30 @@
 [project]
 name = "template-python"
 version = "0.1.0"
-description = "Universal Python runtime template with agentic quality guardrails and verification gates."
+description = "FastAPI, async SQLAlchemy and Alembic service template with automated quality gates."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.32.0",
-    "pydantic>=2.10.0",
-    "pydantic-settings>=2.6.0",
-    "sqlalchemy[asyncio]>=2.0.36",
-    "asyncpg>=0.30.0",
-    "alembic>=1.14.0",
+    "fastapi>=0.162.0",
+    "uvicorn[standard]>=0.54.0",
+    "pydantic>=2.14.1",
+    "pydantic-settings>=2.16.1",
+    "sqlalchemy[asyncio]>=2.1.6",
+    "asyncpg>=0.32.0",
+    "alembic>=1.20.1",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3.0",
-    "pytest-asyncio>=0.24.0",
-    "httpx>=0.28.0",
-    "ruff>=0.8.0",
-    "mypy>=1.13.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.1",
+    "httpx>=0.28.1",
+    "ruff>=0.17.3",
+    "mypy>=2.4.0",
+    "vulture>=2.16",
+    "ast-grep-cli>=0.51.0",
+    "lefthook>=2.2.2",
+    "zizmor>=1.31.1",
 ]
 
 [build-system]
@@ -32,7 +36,7 @@ packages = ["src/app"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = [
@@ -43,11 +47,15 @@ select = [
     "B",   # flake8-bugbear
     "UP",  # pyupgrade
     "C4",  # flake8-comprehensions
+    "S",   # flake8-bandit
 ]
 ignore = []
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # assert is the pytest idiom
+
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.14"
 mypy_path = "src"
 explicit_package_bases = true
 strict = true

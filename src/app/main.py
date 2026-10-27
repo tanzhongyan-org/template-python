@@ -11,7 +11,7 @@ from app.core.database import engine
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Manage application startup and shutdown lifecycle."""
     yield
     await engine.dispose()
