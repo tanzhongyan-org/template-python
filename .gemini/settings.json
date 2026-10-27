@@ -1,0 +1,32 @@
+{
+  "hooks": {
+    "AfterTool": [
+      {
+        "matcher": "write_.*|replace",
+        "hooks": [
+          {
+            "name": "auto-lint",
+            "type": "command",
+            "command": "sh scripts/agent-hook.sh post-edit",
+            "timeout": 10000,
+            "description": "Fast format and lint check on modified files"
+          }
+        ]
+      }
+    ],
+    "AfterAgent": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "gate-check",
+            "type": "command",
+            "command": "sh scripts/agent-hook.sh stop",
+            "timeout": 120000,
+            "description": "Verify verification gates before ending agent turn"
+          }
+        ]
+      }
+    ]
+  }
+}

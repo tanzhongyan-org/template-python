@@ -22,5 +22,5 @@ async def test_health_check_endpoint(client: AsyncClient) -> None:
     data = response.json()
     assert data["status"] == "healthy"
     assert data["app_name"] == "template-python"
-    assert data["environment"] == "development"
+    assert data["environment"] == "test"
     assert "timestamp" in data
