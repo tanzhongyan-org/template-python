@@ -1,35 +1,43 @@
 #!/bin/sh
-set -e
+# Agent hook entrypoint shared by Claude Code and Gemini CLI.
+#   post-edit  format and lint the edited Python file; never blocks.
+#   stop       run `make verify` when the tree has changes; exit 2 on failure.
+# stdout stays empty: Gemini CLI parses stdout as JSON. Feedback goes to stderr.
 
 MODE="${1:-post-edit}"
 INPUT="$(cat || true)"
 
-if [ "$MODE" = "post-edit" ]; then
-  FILE_PATH="$2"
-  if [ -z "$FILE_PATH" ] && [ -n "$INPUT" ]; then
-    FILE_PATH="$(echo "$INPUT" | grep -o '"file_path"[^,]*' | cut -d'"' -f4 || true)"
+case "$MODE" in
+post-edit)
+  FILE_PATH="${2:-}"
+  if [ -z "$FILE_PATH" ]; then
+    FILE_PATH="$(printf '%s' "$INPUT" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
   fi
-  if [ -n "$FILE_PATH" ] && [ -f "$FILE_PATH" ]; then
-    uv run ruff check --fix "$FILE_PATH" >/dev/null 2>&1 || true
-    uv run ruff format "$FILE_PATH" >/dev/null 2>&1 || true
-  fi
+  case "$FILE_PATH" in
+  *.py)
+    if [ -f "$FILE_PATH" ]; then
+      uv run ruff check --fix "$FILE_PATH" >/dev/null 2>&1 || true
+      uv run ruff format "$FILE_PATH" >/dev/null 2>&1 || true
+    fi
+    ;;
+  esac
   exit 0
-fi
-
-if [ "$MODE" = "stop" ]; then
-  MARKER=".git/agent-hook-stop-blocked"
-  if echo "$INPUT" | grep -q '"stop_hook_active":\s*true' || [ -f "$MARKER" ]; then
-    rm -f "$MARKER"
+  ;;
+stop)
+  if printf '%s' "$INPUT" | grep -Eq '"stop_hook_active"[[:space:]]*:[[:space:]]*true'; then
     exit 0
   fi
-
-  if make check; then
-    rm -f "$MARKER"
+  if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
     exit 0
-  else
-    touch "$MARKER"
-    echo "Verification check failed. Fix errors before finishing turn." >&2
-    echo '{"decision": "block", "reason": "Verification check failed. Fix errors before finishing turn."}'
-    exit 2
   fi
-fi
+  if OUTPUT="$(make verify 2>&1)"; then
+    exit 0
+  fi
+  printf '%s\n' "$OUTPUT" | tail -n 40 >&2
+  exit 2
+  ;;
+*)
+  echo "usage: agent-hook.sh post-edit|stop" >&2
+  exit 1
+  ;;
+esac

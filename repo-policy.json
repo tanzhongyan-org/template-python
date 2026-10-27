@@ -1,0 +1,49 @@
+{
+  "layout": {
+    "allow": [
+      ".agents",
+      ".ast-grep",
+      ".ast-grep/**",
+      ".claude",
+      ".gemini",
+      ".github",
+      ".github/**",
+      "alembic",
+      "alembic/**",
+      "docs",
+      "docs/**",
+      "scripts",
+      "src",
+      "src/app",
+      "src/app/**",
+      "tests"
+    ]
+  },
+  "docs": {
+    "exclude": ["docs/plans/**", "docs/specs/**", "docs/archive/**", ".agents/**"],
+    "externalPrefixes": ["workflow/", "shared/"],
+    "ignorePaths": [],
+    "envExample": ".env.example",
+    "envDocumentedIn": "README.md"
+  },
+  "dependencies": {
+    "ledger": "docs/dependencies.md",
+    "manifests": ["pyproject.toml"]
+  },
+  "versions": [
+    {
+      "name": "postgres",
+      "sources": [
+        { "file": "compose.yaml", "pattern": "image:\\s*postgres:(\\S+)" },
+        { "file": ".github/workflows/ci.yml", "pattern": "image:\\s*postgres:(\\S+)" }
+      ]
+    },
+    {
+      "name": "uv",
+      "sources": [
+        { "file": ".github/workflows/ci.yml", "pattern": "UV_VERSION:\\s*\"([^\"]+)\"" },
+        { "file": ".github/workflows/dast.yml", "pattern": "UV_VERSION:\\s*\"([^\"]+)\"" }
+      ]
+    }
+  ]
+}

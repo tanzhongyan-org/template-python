@@ -9,12 +9,13 @@ from app.core.config import settings
 
 # Configure test environment
 settings.app_env = "test"
+settings.trust_identity_header = True
 
 from app.main import app  # noqa: E402
 
 
 @pytest.fixture
-async def client() -> AsyncGenerator[AsyncClient, None]:
+async def client() -> AsyncGenerator[AsyncClient]:
     """Yield an async test client configured with ASGI transport."""
     async with AsyncClient(
         transport=ASGITransport(app=app),
