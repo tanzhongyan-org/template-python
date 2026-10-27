@@ -1,0 +1,20 @@
+id: no-empty-python-stubs
+valid:
+  - |
+    def real_func():
+        return 42
+  - |
+    @abstractmethod
+    def my_method(self) -> None:
+        ...
+  - |
+    class MyProtocol(Protocol):
+        def proto_method(self) -> int:
+            ...
+invalid:
+  - |
+    def stub():
+        pass
+  - |
+    def unfinished():
+        ...

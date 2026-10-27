@@ -1,0 +1,8 @@
+id: no-env-outside-config
+valid:
+  - "from app.core.config import settings; db_url = settings.DATABASE_URL"
+  - "app_name = config.APP_NAME"
+invalid:
+  - "val = os.getenv('SECRET_KEY')"
+  - "secret = os.environ['API_KEY']"
+  - "mode = os.environ.get('ENV')"

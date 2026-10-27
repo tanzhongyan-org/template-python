@@ -3,10 +3,24 @@ message: "Empty function or placeholder stub detected."
 severity: error
 language: Python
 rule:
-  any:
-    - pattern: |
-        def $NAME($$$ARGS):
-            pass
-    - pattern: |
-        def $NAME($$$ARGS):
-            ...
+  all:
+    - any:
+        - pattern: |
+            def $NAME($$$ARGS):
+                pass
+        - pattern: |
+            def $NAME($$$ARGS):
+                ...
+    - not:
+        inside:
+          kind: decorated_definition
+          pattern: |
+            @abstractmethod
+            def $NAME($$$ARGS):
+                $$$
+    - not:
+        inside:
+          kind: class_definition
+          pattern: |
+            class $CLS(Protocol):
+                $$$

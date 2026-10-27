@@ -1,0 +1,13 @@
+id: no-env-outside-config
+message: "Direct access to os.environ or os.getenv is forbidden outside config."
+severity: error
+language: Python
+ignores:
+  - "src/app/core/config.py"
+  - "src/*/core/config.py"
+  - "src/*/config.py"
+rule:
+  any:
+    - pattern: os.environ[$KEY]
+    - pattern: os.environ.get($$$)
+    - pattern: os.getenv($$$)

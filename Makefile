@@ -1,7 +1,8 @@
-.PHONY: setup dev test lint fix typecheck check up down db-migrate db-revision
+.PHONY: setup dev test lint fix typecheck check up down db-migrate db-revision audit
 
 setup:
 	uv sync --all-groups
+	npx --yes lefthook@2.2.2 install
 
 up:
 	docker compose up -d --wait
@@ -32,9 +33,14 @@ fix:
 typecheck:
 	uv run mypy src
 
+audit:
+	uv audit
+
 check:
 	uv run ruff check .
 	uv run ruff format --check .
 	uv run mypy src
 	uv run pytest
-	npx --yes --package @ast-grep/cli ast-grep scan
+	uvx vulture@2.14 src .vulture-whitelist.py --min-confidence 80
+	npx --yes --package @ast-grep/cli@0.51.0 ast-grep scan
+	npx --yes --package @ast-grep/cli@0.51.0 ast-grep test --skip-snapshot-tests
