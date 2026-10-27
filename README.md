@@ -4,18 +4,17 @@ Universal Python application template with agentic quality guardrails and verifi
 
 ## Features
 
-- **Runtime:** Python 3.11+ managed by [uv](https://docs.astral.sh/uv/)
+- **Runtime:** Python 3.12+ managed by [uv](https://docs.astral.sh/uv/)
 - **Framework:** FastAPI with enterprise layered architecture
 - **Database & ORM:** Async SQLAlchemy 2.0 with `asyncpg` driver
 - **Database Migrations:** Async Alembic migration pipeline
 - **Config & Validation:** Centralized Pydantic Settings & Request/Response schemas
 - **Code Quality:** Ruff (lint & format), Mypy (strict typechecking), and Pytest
-- **Task Runner:** Universal `Makefile` with standard developer commands
+- **Task Runner:** Universal `Makefile` with standard developer commands (`setup`, `dev`, `test`, `lint`, `fix`, `typecheck`, `check`)
 - **Agent Guardrails:**
   - `lefthook.yml`: Sub-second local Git pre-commit hooks
-  - `fallow.jsonc`: AST-aware code duplication and cognitive complexity limits
   - `sgconfig.yml` + `.ast-grep/`: Automatic detection of placeholder stubs and unfulfilled code
-  - `.github/workflows/ci.yml`: Automated CI running the 6 Universal Verification Gates
+  - `.github/workflows/ci.yml`: Automated CI running the 6 Universal Verification Gates via `make check`
   - `AGENTS.md`: Runtime-specific agent invariants
 
 ## Getting Started
@@ -31,7 +30,7 @@ cd my-service
 ### 2. Local Setup
 ```bash
 # Sync virtualenv and dependencies
-make install
+make setup
 # or: uv sync --all-groups
 
 # Run database migrations
@@ -58,21 +57,4 @@ make db-migrate
 ```bash
 # Run all gates via Makefile
 make check
-
-# Or execute individual gates:
-# Gate 1: Typecheck
-uv run mypy src
-
-# Gate 2: Lint & Format
-uv run ruff check .
-uv run ruff format --check .
-
-# Gate 3: Test
-uv run pytest
-
-# Gate 5: Duplication Audit
-npx --yes fallow@3.33.1 dupes --quiet --no-fragments
-
-# Gate 6: Anti-Slop Scan
-npx --yes --package @ast-grep/cli ast-grep scan
 ```

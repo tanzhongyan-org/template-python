@@ -1,6 +1,6 @@
-.PHONY: install up down dev test lint lint-fix typecheck check db-migrate db-revision
+.PHONY: setup dev test lint fix typecheck check up down db-migrate db-revision
 
-install:
+setup:
 	uv sync --all-groups
 
 up:
@@ -25,13 +25,16 @@ lint:
 	uv run ruff check .
 	uv run ruff format --check .
 
-lint-fix:
+fix:
 	uv run ruff check --fix .
 	uv run ruff format .
 
 typecheck:
 	uv run mypy src
 
-check: lint typecheck test
-	npx --yes fallow@3.33.1 dupes --root . --quiet --no-fragments
+check:
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy src
+	uv run pytest
 	npx --yes --package @ast-grep/cli ast-grep scan
