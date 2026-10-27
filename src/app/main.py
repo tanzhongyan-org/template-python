@@ -4,11 +4,13 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 
 from app.api.v1.router import api_v1_router
 from app.core.body_limit import BodyLimitMiddleware
 from app.core.config import settings
 from app.core.database import engine
+from app.core.errors import validation_error_handler
 
 
 @asynccontextmanager
@@ -26,6 +28,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_exception_handler(RequestValidationError, validation_error_handler)
 app.add_middleware(BodyLimitMiddleware, max_bytes=settings.max_request_body_bytes)
 app.include_router(api_v1_router, prefix="/api/v1")
 

@@ -4,12 +4,14 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.common import StorableText
+
 
 class NoteBase(BaseModel):
     """Base fields for Note."""
 
-    title: str = Field(..., min_length=1, max_length=200, description="Title of the note")
-    body: str = Field(default="", description="Body content of the note")
+    title: StorableText = Field(..., min_length=1, max_length=200, description="Title of the note")
+    body: StorableText = Field(default="", description="Body content of the note")
 
 
 class NoteCreate(NoteBase):
@@ -21,10 +23,10 @@ class NoteCreate(NoteBase):
 class NoteUpdate(BaseModel):
     """Payload to update an existing note."""
 
-    title: str | None = Field(
+    title: StorableText | None = Field(
         default=None, min_length=1, max_length=200, description="Updated title"
     )
-    body: str | None = Field(default=None, description="Updated body content")
+    body: StorableText | None = Field(default=None, description="Updated body content")
 
 
 class NoteResponse(NoteBase):

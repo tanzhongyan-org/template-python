@@ -3,15 +3,29 @@
 TEMPLATE-TODO(example): replace the notes slice with your first real feature
 """
 
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated, Any
+
+from fastapi import APIRouter, HTTPException, Path, status
 from sqlalchemy import desc, select
 
 from app.core.auth import OwnerId
 from app.core.database import DbSession
 from app.models.note import Note
+from app.schemas.common import ErrorResponse, RowId
 from app.schemas.note import NoteCreate, NoteResponse, NoteUpdate
 
-router = APIRouter()
+router = APIRouter(
+    responses={
+        400: {"model": ErrorResponse, "description": "Malformed request body"},
+        401: {"model": ErrorResponse, "description": "Missing or untrusted identity"},
+        413: {"model": ErrorResponse, "description": "Request body too large"},
+    }
+)
+
+NOTE_NOT_FOUND: dict[int | str, dict[str, Any]] = {
+    404: {"model": ErrorResponse, "description": "Note not found"}
+}
+NoteId = Annotated[RowId, Path()]
 
 
 async def get_owned_note(db: DbSession, note_id: int, owner_id: str) -> Note:
@@ -41,14 +55,16 @@ async def list_notes(owner_id: OwnerId, db: DbSession) -> list[Note]:
     return list(result.scalars().all())
 
 
-@router.get("/{note_id}", response_model=NoteResponse)
-async def get_note(note_id: int, owner_id: OwnerId, db: DbSession) -> Note:
+@router.get("/{note_id}", response_model=NoteResponse, responses=NOTE_NOT_FOUND)
+async def get_note(note_id: NoteId, owner_id: OwnerId, db: DbSession) -> Note:
     """Get a note by ID belonging to the authenticated owner."""
     return await get_owned_note(db, note_id, owner_id)
 
 
-@router.patch("/{note_id}", response_model=NoteResponse)
-async def update_note(note_id: int, payload: NoteUpdate, owner_id: OwnerId, db: DbSession) -> Note:
+@router.patch("/{note_id}", response_model=NoteResponse, responses=NOTE_NOT_FOUND)
+async def update_note(
+    note_id: NoteId, payload: NoteUpdate, owner_id: OwnerId, db: DbSession
+) -> Note:
     """Update a note by ID belonging to the authenticated owner."""
     note = await get_owned_note(db, note_id, owner_id)
     if payload.title is not None:
@@ -60,8 +76,8 @@ async def update_note(note_id: int, payload: NoteUpdate, owner_id: OwnerId, db: 
     return note
 
 
-@router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_note(note_id: int, owner_id: OwnerId, db: DbSession) -> None:
+@router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT, responses=NOTE_NOT_FOUND)
+async def delete_note(note_id: NoteId, owner_id: OwnerId, db: DbSession) -> None:
     """Delete a note by ID belonging to the authenticated owner."""
     note = await get_owned_note(db, note_id, owner_id)
     await db.delete(note)
