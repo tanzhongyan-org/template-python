@@ -5,7 +5,12 @@ from collections.abc import AsyncGenerator
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from app.main import app
+from app.core.config import settings
+
+# Configure test environment
+settings.app_env = "test"
+
+from app.main import app  # noqa: E402
 
 
 @pytest.fixture
