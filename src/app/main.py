@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 
-from app.api.v1.health import router as health_router
+from app.api.v1.router import api_v1_router
 from app.core.config import settings
 
 app = FastAPI(
@@ -12,7 +12,7 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-app.include_router(health_router, prefix="/api/v1")
+app.include_router(api_v1_router, prefix="/api/v1")
 
 
 @app.get("/")

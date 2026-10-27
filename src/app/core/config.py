@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     debug: bool = False
     port: int = 8000
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/template_db"
 
     model_config = SettingsConfigDict(
         env_file=".env",
