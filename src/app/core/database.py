@@ -1,7 +1,9 @@
 """Database engine and session configuration."""
 
 from collections.abc import AsyncGenerator
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
@@ -26,7 +28,10 @@ async_session_maker = async_sessionmaker(
 )
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_db() -> AsyncGenerator[AsyncSession]:
     """Dependency yielding an async database session."""
     async with async_session_maker() as session:
         yield session
+
+
+DbSession = Annotated[AsyncSession, Depends(get_db)]

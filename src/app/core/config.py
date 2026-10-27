@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     app_name: str = "template-python"
     app_env: str = "development"
     debug: bool = False
+    trust_identity_header: bool = False
+    max_request_body_bytes: int = 1_048_576
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/template_python"
 
     model_config = SettingsConfigDict(

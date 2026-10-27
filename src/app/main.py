@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.v1.router import api_v1_router
+from app.core.body_limit import BodyLimitMiddleware
 from app.core.config import settings
 from app.core.database import engine
 
@@ -25,6 +26,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(BodyLimitMiddleware, max_bytes=settings.max_request_body_bytes)
 app.include_router(api_v1_router, prefix="/api/v1")
 
 

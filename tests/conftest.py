@@ -9,6 +9,7 @@ from app.core.config import settings
 
 # Configure test environment
 settings.app_env = "test"
+settings.trust_identity_header = True
 
 from app.main import app  # noqa: E402
 
