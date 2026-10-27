@@ -20,24 +20,7 @@ jobs:
           enable-cache: true
 
       - name: Set up Python
-        run: uv python install 3.11
+        run: uv python install 3.12
 
-      - name: Install dependencies
-        run: uv sync --all-groups
-
-      - name: "Gate 1: Typecheck"
-        run: uv run mypy src
-
-      - name: "Gate 2: Lint and Format"
-        run: |
-          uv run ruff check .
-          uv run ruff format --check .
-
-      - name: "Gate 3: Unit and Contract Tests"
-        run: uv run pytest
-
-      - name: "Gate 5: Duplication Audit"
-        run: npx --yes fallow@3.33.1 dupes --quiet --no-fragments
-
-      - name: "Gate 6: Anti-Slop Scan"
-        run: npx --yes --package @ast-grep/cli ast-grep scan
+      - name: "Run Verification Gates"
+        run: make check
