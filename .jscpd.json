@@ -1,0 +1,10 @@
+{
+  "path": ["src"],
+  "format": ["python"],
+  "minTokens": 50,
+  "threshold": 0,
+  "gitignore": true,
+  "ignore": ["**/tests/**", "**/alembic/versions/**", "**/__pycache__/**"],
+  "reporters": ["console"],
+  "silent": true
+}
