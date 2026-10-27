@@ -1,39 +1,40 @@
-# Python Runtime Agent Guidelines (L1 Extension)
+# Python Service Agent Guidelines (L1 Extension)
 
 Inherits: Universal L0 Invariants (workflow/AGENTS.md).
-Do not repeat global workflow rules here.
+Do not repeat global workflow rules here. Module map: `ARCHITECTURE.md`.
 
-## 1. Project Technology Stack
-- Runtime: Python 3.12+ managed by uv
-- Framework: FastAPI with Pydantic v2
-- Database: Async SQLAlchemy 2.0+ with asyncpg
-- Migrations: Alembic (async configuration)
-- Configuration: Pydantic BaseSettings in `src/app/core/config.py`
-- Testing & Quality: Ruff, Mypy (strict), Pytest with pytest-asyncio and httpx
-- Task Runner: Universal Makefile (`setup`, `dev`, `test`, `lint`, `fix`, `typecheck`, `check`, `audit`)
+## 1. Stack
 
-## 2. Architecture & File Placement
-- Configuration: Singleton settings in `src/app/core/config.py`
-- Database Engine: Async engine & async_sessionmaker in `src/app/core/database.py`
-- Database Models: Subclasses of Base in `src/app/models/<feature>.py`
-- Schemas & DTOs: Request/Response Pydantic models in `src/app/schemas/<feature>.py`
-- API Routers: Feature routes in `src/app/api/v1/endpoints/<feature>.py`, registered in `router.py`
-- Migrations: Version scripts in `alembic/versions/` configured via `alembic.ini` and `alembic/env.py`
-- Test Suites: Async tests in `tests/test_<feature>.py` using `AsyncClient` from `conftest.py`
+- Python (version in `.python-version`) managed by uv
+- FastAPI with Pydantic v2; async SQLAlchemy 2 with asyncpg; Alembic migrations
+- Ruff, Mypy (strict), pytest with pytest-asyncio and httpx
+- Every command goes through the Makefile; `make help` lists targets
 
-## 3. Runtime & Async Invariants
-- Direct access to `os.environ` or `os.getenv` is forbidden outside `src/app/core/config.py` [enforced by ast-grep].
-- Asynchronous Engine & Lifespan: Manage engine lifecycle via FastAPI lifespan context manager (`await engine.dispose()`) [review-only].
-- Modern SQLAlchemy 2.0+ Queries: Use `select(Model)` and `AsyncSession`. Legacy query API is banned [review-only].
-- Session Scope: Inject sessions via `Depends(get_db)`. Endpoints control transaction commit boundaries [review-only].
-- Asynchronous Testing: Test endpoints using `httpx.AsyncClient` with `ASGITransport(app=app)` [enforced by test runner].
-- Typed DTO Returns: Endpoints return typed Pydantic models (`from_attributes=True`), never raw ORM model instances [review-only].
+## 2. Where things go
+
+- Look up the module you need in the Code map in `ARCHITECTURE.md` before writing a helper.
+- Feature code: one module per feature under `src/app/models`, `src/app/schemas` and `src/app/api/v1/endpoints`, registered in `src/app/api/v1/router.py`.
+- Tests: `tests/test_<feature>.py`, using the `client` fixture from `tests/conftest.py`.
+- A new top-level or `src/` directory needs an ADR in `docs/decisions` and a `layout.allow` change in `repo-policy.json`, in the same PR.
+- A new dependency needs a row in `docs/dependencies.md`. Declare tool versions only in the `dev` group of `pyproject.toml` or in a Makefile or workflow variable with a `renovate:` comment.
+
+## 3. Runtime Invariants
+
+- Read environment variables only in `src/app/core/config.py` [enforced by ast-grep].
+- Take identity with `owner_id: OwnerId`; never default it. Filter every query by `owner_id` [enforced by tests].
+- Inject sessions with `db: DbSession`; endpoints own the commit [review-only].
+- Return typed Pydantic models, never ORM instances [review-only].
+- Use `select(Model)` with `AsyncSession`; the legacy query API is banned [review-only].
+- Error bodies are `{"detail": ...}` and never include internals [review-only].
+- Replace markers named `TEMPLATE-TODO` only when you own the decision; `make template-debt` lists them.
 
 ## 4. Verification Gates
-Run `make check` to verify task completion:
-1. Gate 1 (Typecheck): `uv run mypy src`
-2. Gate 2 (Lint & Format): `uv run ruff check . && uv run ruff format --check .`
-3. Gate 3 (Tests): `uv run pytest`
-4. Gate 4 (Dead Code): `uvx vulture@2.14 src .vulture-whitelist.py --min-confidence 80`
-5. Gate 5 (Duplication): N/A (TypeScript/Web specific)
-6. Gate 6 (Anti-Slop): `npx --yes --package @ast-grep/cli@0.51.0 ast-grep scan && ast-grep test`
+
+`make check` runs all six; `make verify` is the fast subset used by agent hooks.
+
+1. Gate 1 (Typecheck): `make typecheck`
+2. Gate 2 (Lint & Format): `make lint` (Ruff including `S` rules, Markdown)
+3. Gate 3 (Tests): `make test`
+4. Gate 4 (Dead Code): `make dead-code`
+5. Gate 5 (Duplication): `make duplication` (jscpd, zero clones)
+6. Gate 6 (Anti-Slop): `make anti-slop`
