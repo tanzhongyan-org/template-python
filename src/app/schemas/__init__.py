@@ -1,6 +1,5 @@
-"""Application Pydantic schemas."""
+"""Pydantic schemas package."""
 
 from app.schemas.health import HealthCheckResponse
-from app.schemas.item import ItemBase, ItemCreate, ItemRead
 
-__all__ = ["HealthCheckResponse", "ItemBase", "ItemCreate", "ItemRead"]
+__all__ = ["HealthCheckResponse"]
