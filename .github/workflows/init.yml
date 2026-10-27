@@ -3,28 +3,41 @@ name: Initialize Template Repository
 on:
   workflow_dispatch:
 
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   init-repo:
-    # Only run on repositories created from the template, not on the template itself
+    # Runs only in repositories created from the template, never in the template itself.
     if: github.repository != 'tanzhongyan-org/template-python'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
+      issues: write
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      # This job pushes the rename commit, so it keeps the checkout credentials.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true # zizmor: ignore[artipacked]
 
       - name: Rename template placeholders
+        env:
+          REPOSITORY: ${{ github.repository }}
         run: |
-          NEW_NAME="${GITHUB_REPOSITORY#*/}"
+          NEW_NAME="${REPOSITORY#*/}"
           NEW_NAME_UNDERSCORE="${NEW_NAME//-/_}"
           echo "Renaming template-python to $NEW_NAME (package: $NEW_NAME_UNDERSCORE)..."
-          find . -type f \( -name "*.toml" -o -name "*.py" -o -name "*.md" -o -name "*.jsonc" -o -name "*.yml" \) \
-            -not -path "*/.git/*" \
-            -not -path "*/.github/*" \
+          find . -type f \( -name "*.toml" -o -name "*.py" -o -name "*.md" -o -name "*.jsonc" -o -name "*.yml" -o -name "*.example" \) \
+            -not -path "./.git/*" \
+            -not -path "./.github/workflows/*" \
             -exec sed -i "s/template-python/$NEW_NAME/g" {} +
           find . -type f \( -name "*.toml" -o -name "*.py" \) \
-            -not -path "*/.git/*" \
-            -not -path "*/.github/*" \
+            -not -path "./.git/*" \
+            -not -path "./.github/workflows/*" \
             -exec sed -i "s/template_python/$NEW_NAME_UNDERSCORE/g" {} +
 
       - name: Commit and push changes
@@ -34,3 +47,16 @@ jobs:
           git add -A
           git diff --staged --quiet || git commit -m "chore: initialize repository from template-python"
           git push
+
+      - name: Open the template follow-ups issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Resolve each marker below, then delete it. List them again with \`make template-debt\`."
+            echo
+            echo '```text'
+            make template-debt
+            echo '```'
+          } > follow-ups.md
+          gh issue create --title "Template follow-ups" --body-file follow-ups.md
