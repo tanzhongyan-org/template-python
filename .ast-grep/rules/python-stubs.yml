@@ -1,0 +1,12 @@
+id: no-empty-python-stubs
+message: "Empty function or placeholder stub detected."
+severity: error
+language: Python
+rule:
+  any:
+    - pattern: |
+        def $NAME($$$ARGS):
+            pass
+    - pattern: |
+        def $NAME($$$ARGS):
+            ...
