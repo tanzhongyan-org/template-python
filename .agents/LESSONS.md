@@ -8,7 +8,7 @@ Load this file only when a gate fails or a task matches a pain point. Keep it un
 |---|---|---|---|
 | 1 | Never default a missing identity to a shared owner. Return 401. | `src/app/core/auth.py` | `tests/test_identity.py` |
 | 2 | Read environment variables only in `src/app/core/config.py`. | `src/app/core/config.py` | ast-grep rule `no-env-outside-config` |
-| 3 | A new directory needs an ADR and a `layout.allow` entry in the same PR. | `repo-policy.json` | `make policy` |
+| 3 | A new directory needs an ADR and a `layout.allow` entry in the same PR. | `scripts/repo-policy.json` | `make policy` |
 | 4 | A new dependency needs a ledger row. | `docs/dependencies.md` | `make policy` |
 | 5 | Declare tool versions once: the `dev` group or a variable with a `renovate:` comment. | `pyproject.toml`, `Makefile` | review-only |
 | 6 | Docs may cite only paths, make targets and links that exist. | `README.md`, `ARCHITECTURE.md` | `make policy` |

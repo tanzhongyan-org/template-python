@@ -2,6 +2,7 @@
 
 Inherits: Universal L0 Invariants (workflow/AGENTS.md).
 Do not repeat global workflow rules here. Module map: `ARCHITECTURE.md`.
+This is the only agent instruction file. Claude Code, Codex, Cursor, Copilot and Gemini read it. Do not add CLAUDE.md, GEMINI.md or other per-tool copies: Claude Code ignores this file once a CLAUDE.md exists. `make policy` rejects them.
 
 ## 1. Stack
 
@@ -15,7 +16,7 @@ Do not repeat global workflow rules here. Module map: `ARCHITECTURE.md`.
 - Look up the module you need in the Code map in `ARCHITECTURE.md` before writing a helper.
 - Feature code: one module per feature under `src/app/models`, `src/app/schemas` and `src/app/api/v1/endpoints`, registered in `src/app/api/v1/router.py`.
 - Tests: `tests/test_<feature>.py`, using the `client` fixture from `tests/conftest.py`.
-- A new top-level or `src/` directory needs an ADR in `docs/decisions` and a `layout.allow` change in `repo-policy.json`, in the same PR.
+- A new top-level or `src/` directory needs an ADR in `docs/decisions` and a `layout.allow` change in `scripts/repo-policy.json`, in the same PR.
 - A new dependency needs a row in `docs/dependencies.md`. Declare tool versions only in the `dev` group of `pyproject.toml` or in a Makefile or workflow variable with a `renovate:` comment.
 
 ## 3. Runtime Invariants

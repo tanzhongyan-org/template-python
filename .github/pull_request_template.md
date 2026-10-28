@@ -23,4 +23,4 @@ Closes #
 - [ ] Tests cover the new behaviour at its public entry point
 - [ ] Docs are updated in this PR (`ARCHITECTURE.md` code map, `README.md` tables)
 - [ ] No new dependency without a row in `docs/dependencies.md`
-- [ ] No new directory without an ADR and a `layout.allow` change in `repo-policy.json`
+- [ ] No new directory without an ADR and a `layout.allow` change in `scripts/repo-policy.json`

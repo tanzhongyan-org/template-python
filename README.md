@@ -8,7 +8,7 @@ A GitHub template for a FastAPI service on async SQLAlchemy and Postgres. It is 
 
 ## Quick start
 
-You need Docker, [uv](https://docs.astral.sh/uv/) and Node. See [CONTRIBUTING.md](CONTRIBUTING.md) for versions.
+You need Docker, [uv](https://docs.astral.sh/uv/) and Node. See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for versions.
 
 ```bash
 gh repo create my-service --template tanzhongyan-org/template-python --private --clone
@@ -95,4 +95,4 @@ Run `make help` for the same list.
 | `docs/` | Decisions and the dependency ledger. See [docs/README.md](docs/README.md). |
 | `.github/` | Workflows, issue forms, CODEOWNERS and the branch ruleset export. |
 
-[ARCHITECTURE.md](ARCHITECTURE.md) maps each module. Read [CONTRIBUTING.md](CONTRIBUTING.md) before you open a PR, [SECURITY.md](SECURITY.md) to report a vulnerability, and [LICENSE](LICENSE) for terms.
+[ARCHITECTURE.md](ARCHITECTURE.md) maps each module. Read [CONTRIBUTING.md](.github/CONTRIBUTING.md) before you open a PR, [SECURITY.md](.github/SECURITY.md) to report a vulnerability, and [LICENSE](LICENSE) for terms.

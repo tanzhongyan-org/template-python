@@ -32,7 +32,7 @@ Check this table before you write a helper. If a row fits, reuse it.
 | `src/app/api/v1/router.py` | Registers feature routers. | One `include_router` line per feature. |
 | `alembic/versions/` | Migrations, generated with `make db-revision`. | Never edit an applied migration. |
 | `tests/` | API tests through `httpx.AsyncClient`. | Use the `client` fixture in `tests/conftest.py`. |
-| `scripts/repo-policy.mjs` | Layout, docs, ledger and drift checks. | Configure it in `repo-policy.json`; do not edit the script. |
+| `scripts/repo-policy.mjs` | Layout, docs, ledger and drift checks. | Configure it in `scripts/repo-policy.json`; do not edit the script. |
 | `scripts/agent-hook.sh` | Format-on-edit and verify-on-stop hooks for agents. | Keep the `post-edit` and `stop` modes. |
 | `.ast-grep/` | Anti-slop and boundary rules with tests. | Add a rule and a test together. |
 
@@ -40,7 +40,7 @@ Check this table before you write a helper. If a row fits, reuse it.
 
 - Only `src/app/core/config.py` reads the environment. [enforced by ast-grep]
 - No function body is only `pass` or `...`. [enforced by ast-grep]
-- Every directory is listed in `repo-policy.json` under `layout.allow`. [enforced by `make policy`]
+- Every directory is listed in `scripts/repo-policy.json` under `layout.allow`. [enforced by `make policy`]
 - Every direct dependency has a row in `docs/dependencies.md`. [enforced by `make policy`]
 - Types are strict. [enforced by Mypy]
 - Queries filter by `owner_id`; a row owned by someone else returns 404. [enforced by `tests/test_notes.py`]
