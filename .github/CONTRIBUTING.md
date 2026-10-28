@@ -45,7 +45,7 @@ Use the notes slice as the pattern. Touch files in this order:
 6. Tests in `tests/`: success, validation failure, 401 without identity, and 404 for another owner's row.
 7. Docs: add the new helpers to the code map in `ARCHITECTURE.md`, new variables to the table in `README.md`, and new dependencies to `docs/dependencies.md`.
 
-A new directory needs an ADR in `docs/decisions` and an entry in `layout.allow` in `repo-policy.json`, in the same PR.
+A new directory needs an ADR in `docs/decisions` and an entry in `layout.allow` in `scripts/repo-policy.json`, in the same PR.
 
 ## Commits and pull requests
 
@@ -56,10 +56,10 @@ A new directory needs an ADR in `docs/decisions` and an entry in `layout.allow` 
 
 ## Where docs go
 
-See [docs/README.md](docs/README.md).
+See [docs/README.md](../docs/README.md).
 
 ## Maintainer notes
 
 - **Branch ruleset.** `.github/rulesets/main.json` exports a ruleset for `main`. Import it under Settings, Rules, Rulesets, Import a ruleset. With the GitHub CLI: `gh api repos/OWNER/REPO/rulesets --method POST --input .github/rulesets/main.json`. It requires a pull request and the `ci-passed` check, blocks force pushes and deletion, and requires CodeQL results at high severity or above.
-- **Renovate.** `renovate.json` groups non-major updates and reads version comments in the `Makefile` and the workflows. Tool versions in `pyproject.toml` need no comment.
+- **Renovate.** `.github/renovate.json` groups non-major updates and reads version comments in the `Makefile` and the workflows. Tool versions in `pyproject.toml` need no comment.
 - **Template debt.** `make template-debt` lists the markers a derived repo must resolve. The init workflow opens an issue with that list.

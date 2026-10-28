@@ -48,10 +48,11 @@ typecheck: ## Mypy in strict mode
 	uv run mypy src
 
 dead-code: ## Gate 4: vulture
-	uv run vulture src .vulture-whitelist.py --min-confidence 80
+	uv run vulture src --min-confidence 80
 
 duplication: ## Gate 5: jscpd
-	npx --yes jscpd@$(JSCPD_VERSION)
+	npx --yes jscpd@$(JSCPD_VERSION) --format python --min-tokens 50 --threshold 0 \
+		--ignore "**/tests/**,**/alembic/versions/**,**/__pycache__/**" --reporters console src
 
 anti-slop: ## Gate 6: ast-grep rules and rule tests
 	uv run ast-grep scan

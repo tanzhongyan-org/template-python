@@ -11,4 +11,4 @@ Documents live where their lifespan says. Put each new document in one place onl
 | Plans | the `plans` folder under `docs` | One PR | Commit the plan, then `git rm` it when the PR merges. |
 | Archive | the `archive` folder under `docs` | Reference | Old specs. Agents skip it. |
 
-Create `specs`, `plans` and `archive` when you first need them. `make policy` checks that every directory is listed in `repo-policy.json`.
+Create `specs`, `plans` and `archive` when you first need them. `make policy` checks that every directory is listed in `scripts/repo-policy.json`.
