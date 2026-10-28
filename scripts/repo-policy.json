@@ -3,19 +3,13 @@
     "allow": [
       ".agents",
       ".ast-grep",
-      ".ast-grep/**",
       ".claude",
       ".gemini",
       ".github",
-      ".github/**",
       "alembic",
-      "alembic/**",
       "docs",
-      "docs/**",
       "scripts",
       "src",
-      "src/app",
-      "src/app/**",
       "tests"
     ],
     "forbid": [

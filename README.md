@@ -8,7 +8,13 @@ A GitHub template for a FastAPI service on async SQLAlchemy and Postgres. It is 
 
 ## Quick start
 
-You need Docker, [uv](https://docs.astral.sh/uv/) and Node. See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for versions.
+You need these installed. See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for versions.
+
+- GNU make. On Windows run `winget install ezwinports.make`; on macOS run `xcode-select --install`.
+- Docker, for the local Postgres.
+- [uv](https://docs.astral.sh/uv/), which installs the Python runtime, and Node.
+
+If port 5432 is already taken, set `POSTGRES_PORT` in `.env` and point `DATABASE_URL` at the same port. To skip the agent stop hook for one session, set `AGENT_HOOK_SKIP=1`.
 
 ```bash
 gh repo create my-service --template tanzhongyan-org/template-python --private --clone
@@ -38,7 +44,7 @@ You should see JSON like `{"status":"healthy","app_name":"my-service","environme
 
 ## After creating your repo
 
-1. Run the **Initialize Template Repository** workflow from the Actions tab. It renames the template placeholders and opens a "Template follow-ups" issue.
+1. The **Initialize Template Repository** workflow runs on your first push to `main` (or run it from the Actions tab). It renames the template placeholders and opens a "Template follow-ups" issue.
 2. List what you still have to change:
 
 ```bash
@@ -58,6 +64,7 @@ Settings load from the environment or a `.env` file through `src/app/core/config
 | `DEBUG` | no | `false` | Echo SQL statements when `true`. |
 | `DATABASE_URL` | yes | local Postgres | Async SQLAlchemy URL, `postgresql+asyncpg://...`. |
 | `TRUST_IDENTITY_HEADER` | no | `false` | Accept the `x-user-id` header as the caller identity. Without it every notes request returns 401. |
+| `POSTGRES_PORT` | no | `5432` | Host port for the Postgres container in `compose.yaml`. Change it when 5432 is in use. |
 | `MAX_REQUEST_BODY_BYTES` | no | `1048576` | Largest accepted request body. Larger bodies return 413. |
 
 ## Commands

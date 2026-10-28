@@ -2,6 +2,8 @@ name: Initialize Template Repository
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 
 permissions: {}
 
@@ -12,6 +14,7 @@ concurrency:
 jobs:
   init-repo:
     # Runs only in repositories created from the template, never in the template itself.
+    # It also runs on the first push to main; the marker check below makes later runs a no-op.
     if: github.repository != 'tanzhongyan-org/template-python'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -24,31 +27,49 @@ jobs:
         with:
           persist-credentials: true # zizmor: ignore[artipacked]
 
+      - name: Check the template placeholders are still present
+        id: marker
+        run: |
+          if grep -q "template-python" pyproject.toml; then
+            echo "pending=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pending=false" >> "$GITHUB_OUTPUT"
+            echo "Template already initialized; nothing to do."
+          fi
+
       - name: Rename template placeholders
+        if: steps.marker.outputs.pending == 'true'
         env:
           REPOSITORY: ${{ github.repository }}
         run: |
           NEW_NAME="${REPOSITORY#*/}"
           NEW_NAME_UNDERSCORE="${NEW_NAME//-/_}"
           echo "Renaming template-python to $NEW_NAME (package: $NEW_NAME_UNDERSCORE)..."
-          find . -type f \( -name "*.toml" -o -name "*.py" -o -name "*.md" -o -name "*.jsonc" -o -name "*.yml" -o -name "*.example" \) \
+          # Owner and links first, so the org is never hardcoded.
+          find . -type f \( -name "*.toml" -o -name "*.py" -o -name "*.md" -o -name "*.jsonc" -o -name "*.yml" -o -name "*.yaml" -o -name "*.ini" -o -name "*.example" \) \
+            -not -path "./.git/*" \
+            -not -path "./.github/workflows/*" \
+            -exec sed -i "s#tanzhongyan-org/template-python#$REPOSITORY#g" {} +
+          find . -type f \( -name "*.toml" -o -name "*.py" -o -name "*.md" -o -name "*.jsonc" -o -name "*.yml" -o -name "*.yaml" -o -name "*.ini" -o -name "*.example" \) \
             -not -path "./.git/*" \
             -not -path "./.github/workflows/*" \
             -exec sed -i "s/template-python/$NEW_NAME/g" {} +
-          find . -type f \( -name "*.toml" -o -name "*.py" \) \
+          find . -type f \( -name "*.toml" -o -name "*.py" -o -name "*.yaml" -o -name "*.ini" -o -name "*.example" \) \
             -not -path "./.git/*" \
             -not -path "./.github/workflows/*" \
             -exec sed -i "s/template_python/$NEW_NAME_UNDERSCORE/g" {} +
 
       - name: Commit and push changes
+        if: steps.marker.outputs.pending == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --staged --quiet || git commit -m "chore: initialize repository from template-python"
+          git diff --staged --quiet || git commit -m "chore: initialize repository from template"
           git push
 
       - name: Open the template follow-ups issue
+        if: steps.marker.outputs.pending == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
