@@ -8,7 +8,7 @@
 | uv | `UV_VERSION` in `.github/workflows/ci.yml` | [uv docs](https://docs.astral.sh/uv/getting-started/installation/) |
 | Node | `.node-version` (runs the policy checker, jscpd and markdownlint) | [nodejs.org](https://nodejs.org/en/download) |
 | Docker | `compose.yaml` pins the Postgres image | [docs.docker.com](https://docs.docker.com/get-docker/) |
-| make | any recent version | your package manager |
+| GNU make | any recent version | your package manager; Windows: `winget install ezwinports.make` |
 | gitleaks (optional locally) | `GITLEAKS_VERSION` in `.github/workflows/ci.yml` | [gitleaks releases](https://github.com/gitleaks/gitleaks/releases) |
 
 <!-- TEMPLATE-TODO(license): set the copyright holder in LICENSE to your own name or organisation -->
