@@ -6,141 +6,16 @@ on:
   pull_request:
     branches: [main]
 
-permissions: {}
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
-env:
-  # renovate: datasource=pypi depName=uv
-  UV_VERSION: "0.13.6"
-  # renovate: datasource=github-releases depName=gitleaks/gitleaks extractVersion=^v(?<version>.+)$
-  GITLEAKS_VERSION: "8.30.1"
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
-  gates:
-    name: gates
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    services:
-      postgres:
-        image: postgres:18-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: template_python
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      DATABASE_URL: "postgresql+asyncpg://postgres:password@localhost:5432/template_python"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
-        with:
-          version: ${{ env.UV_VERSION }}
-          enable-cache: true
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: .node-version
-
-      - name: Install dependencies
-        run: uv sync --locked --all-groups
-
-      - name: Run database migrations
-        run: make db-migrate
-
-      - name: Run verification gates
-        run: make check
-
-  security:
-    name: security
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
-        with:
-          version: ${{ env.UV_VERSION }}
-          enable-cache: true
-
-      - name: Install dependencies
-        run: uv sync --locked --all-groups
-
-      - name: Scan full history for secrets
-        run: |
-          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
-          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
-          curl -sSfLO "${base}/${archive}"
-          curl -sSfLO "${base}/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
-          grep " ${archive}\$" "gitleaks_${GITLEAKS_VERSION}_checksums.txt" | sha256sum --check --strict -
-          tar -xzf "${archive}" gitleaks
-          ./gitleaks git --redact --no-banner --verbose .
-          rm -f gitleaks "${archive}" "gitleaks_${GITLEAKS_VERSION}_checksums.txt"
-
-      - name: Audit dependencies
-        run: make audit
-
-      - name: Lint workflows
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: uv run zizmor --min-severity medium .github/workflows
-
-  dependency-review:
-    name: dependency-review
-    if: github.event_name == 'pull_request' && (!github.event.repository.private || vars.ENABLE_CODE_SECURITY == 'true')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Probe the Dependency graph
-        id: probe
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if gh api "repos/${GITHUB_REPOSITORY}/dependency-graph/sbom" --silent; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::Dependency graph is off; enable it in Settings > Code security to run dependency review."
-          fi
-
-      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-        if: steps.probe.outputs.enabled == 'true'
-        with:
-          fail-on-severity: high
-
-  ci-passed:
-    name: ci-passed
-    if: always()
-    needs: [gates, security, dependency-review]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions: {}
-    steps:
-      - name: Require every job to succeed or be skipped
-        env:
-          NEEDS: ${{ toJSON(needs) }}
-        run: echo "$NEEDS" | jq -e '[.[].result] | all(. == "success" or . == "skipped")'
+  ci:
+    uses: tanzhongyan-org/.github/.github/workflows/ci.yml@0c54f703d2d0d24b6ec61c8ea0f0d1a7d220f3e9 # v1
+    with:
+      runtime: python
+      postgres-db: template_python
+      database-url: postgresql+asyncpg://postgres:password@localhost:5432/template_python
+      install-command: uv sync --locked --all-groups
+      db-setup-command: make db-migrate

@@ -27,5 +27,7 @@ Only the `main` branch is supported. Fixes land on `main`; there are no backport
 | Static analysis across the codebase | CodeQL, `security-extended` queries, Python and Actions | PR, push, weekly |
 | Secrets | gitleaks, full history | `security` CI job and the pre-commit hook |
 | Dependency vulnerabilities | `uv audit`; dependency review on PRs (fails on high severity) | `security` and `dependency-review` CI jobs |
+| Dependency licences | `make licenses`: banned copyleft fails, weak copyleft needs an exception | `make licenses`, every PR |
+| Supply chain | `make security`: gitleaks, `uv audit`, new-dependency check | `make security`, every PR |
 | Workflow security | zizmor | `security` CI job |
 | Dynamic testing | Schemathesis against `/openapi.json` | weekly and on demand (`.github/workflows/dast.yml`) |
