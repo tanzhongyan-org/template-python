@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   ci:
-    uses: tanzhongyan-org/.github/.github/workflows/ci.yml@0c54f703d2d0d24b6ec61c8ea0f0d1a7d220f3e9 # v1
+    uses: tanzhongyan-org/.github/.github/workflows/ci.yml@f9ce8a7ca64217ae1b0cbacd39fe741137728f1c # v1
     with:
       runtime: python
       postgres-db: template_python
