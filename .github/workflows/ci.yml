@@ -19,3 +19,23 @@ jobs:
       database-url: postgresql+asyncpg://postgres:password@localhost:5432/template_python
       install-command: uv sync --locked --all-groups
       db-setup-command: make db-migrate
+
+  # Local aggregator: reusable jobs report as "ci / <job>", but the org
+  # ruleset requires a check literally named "ci-passed". This job mirrors
+  # the shared workflow's result under that stable name.
+  ci-passed:
+    name: ci-passed
+    if: always()
+    needs: [ci]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Require the shared CI to succeed or be skipped
+        env:
+          RESULT: ${{ needs.ci.result }}
+        run: |
+          if [ "$RESULT" != "success" ] && [ "$RESULT" != "skipped" ]; then
+            echo "Shared CI finished with: $RESULT"
+            exit 1
+          fi
