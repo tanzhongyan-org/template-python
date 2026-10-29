@@ -13,6 +13,8 @@ One row per direct dependency in `pyproject.toml`. `make policy` fails when a de
 | `sqlalchemy` | ORM and query builder, async sessions | `sqlite3` and raw drivers give no model mapping or typed queries | Starting point |
 | `asyncpg` | Async Postgres driver | SQLAlchemy needs a driver, and this one is async-native | Starting point |
 | `alembic` | Schema migrations | `create_all` cannot change an existing schema | Starting point |
+| `pyjwt` | Verifies product bearer tokens against the JWKS | The standard library has no JWT verification | Added for product JWT validation |
+| `cryptography` | RSA and ECDSA signature checks behind PyJWT | Pure-Python crypto is slow and unsafe to hand-roll | Added for product JWT validation |
 
 ## Development
 
@@ -27,3 +29,4 @@ One row per direct dependency in `pyproject.toml`. `make policy` fails when a de
 | `ast-grep-cli` | Anti-slop rules | Ruff cannot express project-specific structural rules | `npx` call in the Makefile |
 | `lefthook` | Git hooks | Raw `.git/hooks` scripts are not shared through git | `npx` call in the Makefile |
 | `zizmor` | Workflow security lint | No other tool in the stack reads workflow files | Starting point |
+| `pip-licenses` | Lists installed licences for `make licenses` | `importlib.metadata` does not report licences consistently | Added for the licence gate |

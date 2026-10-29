@@ -8,7 +8,7 @@ SCHEMATHESIS_VERSION := 4.32.6
 .DEFAULT_GOAL := help
 
 .PHONY: help setup up down dev db-migrate db-revision test lint fix typecheck dead-code \
-	duplication anti-slop policy audit template-debt dast verify check
+	duplication anti-slop policy audit licenses security template-debt dast verify check
 
 help: ## List public make targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | sort
@@ -63,6 +63,13 @@ policy: ## Layout, docs, dependency ledger and version drift checks
 
 audit: ## Dependency vulnerability scan (uv audit)
 	uv audit --locked --preview-features audit-command
+
+licenses: ## Check runtime licences and regenerate NOTICE
+	uv run python scripts/check_licenses.py
+
+security: audit ## Gitleaks, vulnerability audit and new-dependency check
+	if command -v gitleaks >/dev/null 2>&1; then gitleaks detect --no-banner --redact; else echo 'gitleaks is not installed; CI runs the history scan. See .github/CONTRIBUTING.md (Prerequisites)' >&2; fi
+	uv run python scripts/check_new_deps.py
 
 template-debt: ## List TEMPLATE-TODO markers a derived repo must resolve
 	@git grep -n "TEMPLATE-TODO[(]" || true
