@@ -4,11 +4,19 @@ JSCPD_VERSION := 5.4.2
 MARKDOWNLINT_VERSION := 0.24.0
 # renovate: datasource=pypi depName=schemathesis
 SCHEMATHESIS_VERSION := 4.32.6
+# renovate: datasource=npm depName=@hey-api/openapi-ts
+OPENAPI_TS_VERSION := 0.99.0
+# Stay on TypeScript 5: @hey-api/openapi-ts 0.99 crashes with TS 6/7.
+# renovate: datasource=npm depName=typescript
+TYPESCRIPT_VERSION := 5.9.3
+OPENAPI_TS_NPX := npx --yes --package=@hey-api/openapi-ts@$(OPENAPI_TS_VERSION) \
+	--package=typescript@$(TYPESCRIPT_VERSION)
 
 .DEFAULT_GOAL := help
 
 .PHONY: help setup up down dev db-migrate db-revision test lint fix typecheck dead-code \
-	duplication anti-slop policy audit licenses security template-debt dast verify check
+	duplication anti-slop policy audit licenses security openapi client spec-check \
+	template-debt dast verify check
 
 help: ## List public make targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | sort
@@ -71,6 +79,18 @@ security: audit ## Gitleaks, vulnerability audit and new-dependency check
 	if command -v gitleaks >/dev/null 2>&1; then gitleaks detect --no-banner --redact; else echo 'gitleaks is not installed; CI runs the history scan. See .github/CONTRIBUTING.md (Prerequisites)' >&2; fi
 	uv run python scripts/check_new_deps.py
 
+openapi: ## Export the committed OpenAPI document to clients/openapi.json
+	uv run python scripts/export_openapi.py
+
+client: openapi ## Generate the TypeScript client from the committed spec
+	$(OPENAPI_TS_NPX) openapi-ts -i ./clients/openapi.json -o ./clients/ts -p @hey-api/client-fetch
+
+spec-check: ## Fail when the committed spec or TS client is stale
+	uv run python scripts/check_spec.py
+	tmp=$$(mktemp -d); trap 'rm -rf "$$tmp"' EXIT; \
+		$(OPENAPI_TS_NPX) openapi-ts -i ./clients/openapi.json -o "$$tmp/ts" -p @hey-api/client-fetch \
+		&& diff -r clients/ts "$$tmp/ts"
+
 template-debt: ## List TEMPLATE-TODO markers a derived repo must resolve
 	@git grep -n "TEMPLATE-TODO[(]" || true
 
@@ -81,5 +101,5 @@ dast: ## Schemathesis against a running server (BASE_URL, default http://localho
 verify: typecheck lint anti-slop policy ## Fast checks without a database
 	@echo "verify: ok"
 
-check: lint typecheck test dead-code duplication anti-slop policy ## All gates, as run in CI
+check: lint typecheck test dead-code duplication anti-slop policy spec-check ## All gates, as run in CI
 	@echo "check: ok"
