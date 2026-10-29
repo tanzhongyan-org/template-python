@@ -8,7 +8,7 @@ SCHEMATHESIS_VERSION := 4.32.6
 OPENAPI_TS_VERSION := 0.99.0
 # Stay on TypeScript 5: @hey-api/openapi-ts 0.99 crashes with TS 6/7.
 # renovate: datasource=npm depName=typescript
-TYPESCRIPT_VERSION := 5.9.3
+TYPESCRIPT_VERSION := 7.0.2
 OPENAPI_TS_NPX := npx --yes --package=@hey-api/openapi-ts@$(OPENAPI_TS_VERSION) \
 	--package=typescript@$(TYPESCRIPT_VERSION)
 
