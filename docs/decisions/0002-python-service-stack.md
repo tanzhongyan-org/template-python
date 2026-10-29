@@ -10,7 +10,7 @@ This template starts HTTP services backed by Postgres. The stack has to be async
 - uv manages the interpreter, the virtual environment and the lock file.
 - FastAPI with Pydantic v2 for the HTTP layer.
 - SQLAlchemy 2 async with asyncpg, and Alembic for migrations.
-- Postgres 18, pinned in `compose.yaml` and in CI.
+- Postgres 18, pinned in `compose.yaml`; CI uses the shared Postgres service.
 - Ruff for lint and format, Mypy in strict mode, pytest for tests.
 
 ## Consequences
@@ -18,4 +18,4 @@ This template starts HTTP services backed by Postgres. The stack has to be async
 - Handlers are coroutines, and every database call is awaited.
 - Upgrading Python is a one-line change in `.python-version` plus the Ruff and Mypy targets in `pyproject.toml`.
 - Sync-only libraries need an executor or a replacement.
-- Postgres major upgrades change the tag in `compose.yaml` and `.github/workflows/ci.yml` together; `make policy` fails if they disagree.
+- Postgres major upgrades change the tag in `compose.yaml`; the shared CI carries its own service tag.

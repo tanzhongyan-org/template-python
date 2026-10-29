@@ -1,0 +1,3 @@
+# Owner-approved weak-copyleft runtime packages, one per line:
+# distribution-name  # why it is acceptable
+# LGPL, MPL and EPL licences need a row here; strong copyleft never passes.

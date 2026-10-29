@@ -7,6 +7,7 @@
       ".gemini",
       ".github",
       "alembic",
+      "clients",
       "docs",
       "scripts",
       "src",
@@ -50,23 +51,6 @@
         {
           "file": "compose.yaml",
           "pattern": "image:\\s*postgres:(\\S+)"
-        },
-        {
-          "file": ".github/workflows/ci.yml",
-          "pattern": "image:\\s*postgres:(\\S+)"
-        }
-      ]
-    },
-    {
-      "name": "uv",
-      "sources": [
-        {
-          "file": ".github/workflows/ci.yml",
-          "pattern": "UV_VERSION:\\s*\"([^\"]+)\""
-        },
-        {
-          "file": ".github/workflows/dast.yml",
-          "pattern": "UV_VERSION:\\s*\"([^\"]+)\""
         }
       ]
     }

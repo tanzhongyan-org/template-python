@@ -5,65 +5,19 @@ on:
     - cron: "41 3 * * 1"
   workflow_dispatch:
 
-permissions: {}
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
-
-env:
-  # renovate: datasource=pypi depName=uv
-  UV_VERSION: "0.13.6"
+permissions:
+  contents: read
 
 jobs:
-  schemathesis:
-    name: schemathesis
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    services:
-      postgres:
-        image: postgres:18-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: template_python
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      DATABASE_URL: "postgresql+asyncpg://postgres:password@localhost:5432/template_python"
-      TRUST_IDENTITY_HEADER: "true"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
-        with:
-          version: ${{ env.UV_VERSION }}
-          enable-cache: true
-
-      - name: Install dependencies
-        run: uv sync --locked --no-dev
-
-      - name: Run database migrations
-        run: make db-migrate
-
-      - name: Start the server
-        run: |
-          uv run uvicorn app.main:app --port 8000 > server.log 2>&1 &
-          for _ in $(seq 1 30); do
-            curl -sf http://localhost:8000/api/v1/health >/dev/null && exit 0
-            sleep 1
-          done
-          cat server.log
-          exit 1
-
-      - name: Run Schemathesis against /openapi.json
-        run: make dast
+  dast:
+    uses: tanzhongyan-org/.github/.github/workflows/dast.yml@0c54f703d2d0d24b6ec61c8ea0f0d1a7d220f3e9 # v1
+    with:
+      runtime: python
+      tool: schemathesis
+      postgres-db: template_python
+      database-url: postgresql+asyncpg://postgres:password@localhost:5432/template_python
+      base-url: http://localhost:8000
+      health-url: http://localhost:8000/api/v1/health
+      install-command: uv sync --locked --no-dev
+      db-setup-command: make db-migrate
+      start-command: uv run uvicorn app.main:app --port 8000
