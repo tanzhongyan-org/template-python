@@ -6,7 +6,9 @@ MARKDOWNLINT_VERSION := 0.24.0
 SCHEMATHESIS_VERSION := 4.32.6
 # renovate: datasource=npm depName=@hey-api/openapi-ts
 OPENAPI_TS_VERSION := 0.99.0
-# Stay on TypeScript 5: @hey-api/openapi-ts 0.99 crashes with TS 6/7.
+# TypeScript stays below 7: hey-api 0.99 imports the TypeScript 5 default
+# export, which TypeScript 7 removed. Drop the second package once hey-api
+# supports TypeScript 7.
 # renovate: datasource=npm depName=typescript
 TYPESCRIPT_VERSION := 5.9.3
 OPENAPI_TS_NPX := npx --yes --package=@hey-api/openapi-ts@$(OPENAPI_TS_VERSION) \
