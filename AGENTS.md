@@ -22,7 +22,7 @@ This is the only agent instruction file. Claude Code, Codex, Cursor, Copilot and
 ## 3. Runtime Invariants
 
 - Read environment variables only in `src/app/core/config.py` [enforced by ast-grep].
-- Take identity with `owner_id: OwnerId`; never default it. Filter every query by `owner_id` [enforced by tests].
+- Take identity with `owner_id: OwnerId`; never default it. Bearer tokens validate against the JWKS; the `x-user-id` header is dev-only [enforced by tests]. Filter every query by `owner_id` [enforced by tests].
 - Inject sessions with `db: DbSession`; endpoints own the commit [review-only].
 - Return typed Pydantic models, never ORM instances [review-only].
 - Use `select(Model)` with `AsyncSession`; the legacy query API is banned [review-only].
@@ -39,3 +39,6 @@ This is the only agent instruction file. Claude Code, Codex, Cursor, Copilot and
 4. Gate 4 (Dead Code): `make dead-code`
 5. Gate 5 (Duplication): `make duplication` (jscpd, zero clones)
 6. Gate 6 (Anti-Slop): `make anti-slop`
+
+CI also runs `make licenses`, `make security` and `make spec-check`. Regenerate
+the contract with `make openapi` and `make client` after route changes.
