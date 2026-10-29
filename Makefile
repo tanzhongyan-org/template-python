@@ -10,7 +10,7 @@ OPENAPI_TS_VERSION := 0.99.0
 # export, which TypeScript 7 removed. Drop the second package once hey-api
 # supports TypeScript 7.
 # renovate: datasource=npm depName=typescript
-TYPESCRIPT_VERSION := 5.9.3
+TYPESCRIPT_VERSION := 6.0.3
 OPENAPI_TS_NPX := npx --yes --package=@hey-api/openapi-ts@$(OPENAPI_TS_VERSION) \
 	--package=typescript@$(TYPESCRIPT_VERSION)
 
