@@ -33,3 +33,6 @@ dist/
 .schemathesis/
 node_modules/
 server.log
+
+# Agent worktrees
+/.worktrees/

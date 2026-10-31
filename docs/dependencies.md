@@ -30,3 +30,4 @@ One row per direct dependency in `pyproject.toml`. `make policy` fails when a de
 | `lefthook` | Git hooks | Raw `.git/hooks` scripts are not shared through git | `npx` call in the Makefile |
 | `zizmor` | Workflow security lint | No other tool in the stack reads workflow files | Starting point |
 | `pip-licenses` | Lists installed licences for `make licenses` | `importlib.metadata` does not report licences consistently | Added for the licence gate |
+| `pytest-cov` | Coverage measurement and the `--cov-fail-under` floor | pytest reports pass or fail only, with no coverage figure | Added for the coverage gate |
