@@ -3,7 +3,7 @@ JSCPD_VERSION := 5.4.2
 # renovate: datasource=npm depName=markdownlint-cli2
 MARKDOWNLINT_VERSION := 0.24.0
 # renovate: datasource=pypi depName=schemathesis
-SCHEMATHESIS_VERSION := 4.32.6
+SCHEMATHESIS_VERSION := 4.32.7
 # renovate: datasource=npm depName=@hey-api/openapi-ts
 OPENAPI_TS_VERSION := 0.99.0
 # TypeScript stays below 7: hey-api 0.99 imports the TypeScript 5 default
