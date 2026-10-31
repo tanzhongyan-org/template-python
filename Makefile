@@ -43,7 +43,7 @@ db-revision: ## Create a migration: make db-revision m="add_table"
 	uv run alembic revision --autogenerate -m "$(m)"
 
 test: ## Run the test suite (needs Postgres)
-	uv run pytest
+	uv run pytest --cov-report=term-missing
 
 lint: ## Ruff lint, Ruff format check, Markdown lint
 	uv run ruff check .
@@ -62,7 +62,7 @@ dead-code: ## Gate 4: vulture
 
 duplication: ## Gate 5: jscpd
 	npx --yes jscpd@$(JSCPD_VERSION) --format python --min-tokens 50 --threshold 0 \
-		--ignore "**/tests/**,**/alembic/versions/**,**/__pycache__/**" --reporters console src
+		--ignore "**/tests/**,**/alembic/versions/**,**/.worktrees/**,**/__pycache__/**" --reporters console src
 
 anti-slop: ## Gate 6: ast-grep rules and rule tests
 	uv run ast-grep scan
