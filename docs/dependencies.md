@@ -22,6 +22,7 @@ One row per direct dependency in `pyproject.toml`. `make policy` fails when a de
 | --- | --- | --- | --- |
 | `pytest` | Test runner | `unittest` has no fixtures or parametrization of this kind | Starting point |
 | `pytest-asyncio` | Runs async tests | pytest cannot await coroutines alone | Starting point |
+| `pytest-xdist` | Parallel test runner | pytest runs tests sequentially by default | Added for test suite parallelization |
 | `httpx` | In-process API client for tests | `urllib` has no ASGI transport | Starting point |
 | `ruff` | Lint, format and security rules | Replaces several separate linters and a formatter | Starting point |
 | `mypy` | Strict type checking | Python does not check types at run time | Starting point |

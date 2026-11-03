@@ -16,9 +16,11 @@ OPENAPI_TS_NPX := npx --yes --package=@hey-api/openapi-ts@$(OPENAPI_TS_VERSION) 
 
 .DEFAULT_GOAL := help
 
+MAKEFLAGS += -j4
+
 .PHONY: help setup up down dev db-migrate db-revision test lint fix typecheck dead-code \
 	duplication anti-slop policy audit licenses security openapi client spec-check \
-	template-debt dast verify check
+	template-debt dast verify check ruff-check ruff-format markdownlint
 
 help: ## List public make targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | sort
@@ -33,7 +35,8 @@ up: ## Start Postgres and wait until it is healthy
 down: ## Stop Postgres
 	docker compose down
 
-dev: up db-migrate ## Start Postgres, migrate, run the server with reload
+dev: up ## Start Postgres, migrate, run the server with reload
+	uv run alembic upgrade head
 	uv run uvicorn app.main:app --reload --port 8000
 
 db-migrate: ## Apply Alembic migrations
@@ -45,10 +48,16 @@ db-revision: ## Create a migration: make db-revision m="add_table"
 test: ## Run the test suite (needs Postgres)
 	uv run pytest --cov-report=term-missing
 
-lint: ## Ruff lint, Ruff format check, Markdown lint
+ruff-check:
 	uv run ruff check .
+
+ruff-format:
 	uv run ruff format --check .
+
+markdownlint:
 	npx --yes markdownlint-cli2@$(MARKDOWNLINT_VERSION)
+
+lint: ruff-check ruff-format markdownlint ## Ruff lint, Ruff format check, Markdown lint
 
 fix: ## Apply Ruff fixes and formatting
 	uv run ruff check --fix .

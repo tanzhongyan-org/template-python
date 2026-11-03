@@ -15,11 +15,12 @@ import argparse
 import importlib.metadata
 import json
 import re
-import subprocess
 import sys
 import tomllib
 from collections.abc import Callable
 from pathlib import Path
+
+from piplicenses import create_output_string, create_parser
 
 ROOT = Path(__file__).resolve().parent.parent
 EXCEPTIONS_FILE = ROOT / "scripts" / "license-exceptions.txt"
@@ -207,16 +208,13 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
 
     closure = compute_closure(runtime_roots(), installed_requires)
-    completed = subprocess.run(
-        [sys.executable, "-m", "piplicenses", "--format=json", "--with-urls"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if completed.returncode != 0:
-        print(f"pip-licenses failed:\n{completed.stderr}", file=sys.stderr)
-        return 1
-    report = json.loads(completed.stdout or "[]")
+    pkg_args = ["--format=json", "--with-urls"]
+    packages = sorted(closure)
+    if packages:
+        pkg_args.extend(["--packages", *packages])
+    pip_parser = create_parser()
+    pip_args = pip_parser.parse_args(pkg_args)
+    report = json.loads(create_output_string(pip_args))
 
     errors = check(report, closure, read_exceptions(), project_name())
     Path(args.output).write_text(render_notice(report, closure, project_name()), encoding="utf-8")

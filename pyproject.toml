@@ -20,6 +20,7 @@ dependencies = [
 dev = [
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.1",
+    "pytest-xdist>=3.8.0",
     "httpx>=0.28.1",
     "ruff>=0.17.3",
     "mypy>=2.4.0",
@@ -69,8 +70,12 @@ exclude = ['^\.worktrees/']
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --cov=src/app --cov-fail-under=90"
+addopts = "-ra -q -n auto --maxprocesses=2 --dist loadfile --cov=src/app --cov-fail-under=90"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 norecursedirs = [".worktrees", ".venv", "node_modules"]
 pythonpath = ["src"]
 asyncio_mode = "auto"
+
+[tool.coverage.run]
+disable_warnings = ["no-data-collected"]
