@@ -16,6 +16,7 @@ import re
 import sys
 import tomllib
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -104,14 +105,28 @@ def check(
     now: datetime,
 ) -> list[str]:
     """Return one error per direct dependency that fails the checks."""
+    if not names:
+        return []
+
+    with ThreadPoolExecutor(max_workers=min(16, len(names))) as executor:
+        futures = [executor.submit(fetch, name) for name in names]
+        results: list[tuple[dict | None, Exception | None]] = []
+        for future in futures:
+            try:
+                results.append((future.result(), None))
+            except Exception as exc:
+                results.append((None, exc))
+
     errors: list[str] = []
-    for name in names:
+    for name, (metadata, exc) in zip(names, results, strict=True):
         if name not in ledger:
             errors.append(f"{name}: no row in docs/dependencies.md")
-        try:
-            metadata = fetch(name)
-        except PackageNotFound:
-            errors.append(f"{name}: not found on PyPI")
+        if exc is not None:
+            if isinstance(exc, PackageNotFound):
+                errors.append(f"{name}: not found on PyPI")
+                continue
+            raise exc
+        if metadata is None:
             continue
         first = first_release_at(metadata)
         if first is None:
