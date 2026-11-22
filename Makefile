@@ -1,5 +1,5 @@
 # renovate: datasource=npm depName=jscpd
-JSCPD_VERSION := 5.4.2
+JSCPD_VERSION := 5.4.3
 # renovate: datasource=npm depName=markdownlint-cli2
 MARKDOWNLINT_VERSION := 0.24.0
 # renovate: datasource=pypi depName=schemathesis
